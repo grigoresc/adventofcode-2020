@@ -35,8 +35,9 @@ namespace day_2
             Assert.Equal(2, compute(numbers_sample));
             Assert.Equal(467, compute(numbers));
             
-            
-
+  
+            Assert.Equal(1, compute2(numbers_sample));
+            Assert.Equal(441, compute2(numbers));
 
         }
 
@@ -47,6 +48,20 @@ namespace day_2
                var oc=p.password.Length-newp.Length;
                if(p.min<=oc&&oc<=p.max)
                 cnt++;
+           }
+
+           return cnt;
+            
+        }
+
+       static int compute2(policy[] ps){
+           int cnt=0;
+           foreach(var p in ps){
+                var one=p.password[p.min-1].ToString()==p.letter;
+                var two=p.password[p.max-1].ToString()==p.letter;
+                System.Console.WriteLine($"{one}|{two}|{p.password}|{p.letter}|{p.min}|{p.max}");
+                if(one^two)
+                    cnt++;
            }
 
            return cnt;
