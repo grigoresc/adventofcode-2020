@@ -25,13 +25,31 @@ namespace day_3
         {
 
 
-            Compute(readmatrix(File.ReadAllLines("sample.txt")));//7
-            Compute(readmatrix(File.ReadAllLines("input.txt")));//292
-
+            // Compute(readmatrix(File.ReadAllLines("sample.txt")));//7
+            // Compute(readmatrix(File.ReadAllLines("input.txt")));//292
+            Compute2(readmatrix(File.ReadAllLines("sample.txt")));//336
+            Compute2(readmatrix(File.ReadAllLines("input.txt")));//9354744432
 
         }
 
-        static int Compute(char[][] matrix)
+        static double Compute(char[][] matrix)
+        {
+            return Compute_(matrix, 1, 3);
+
+        }
+
+        static long Compute2(char[][] matrix)
+        {
+            long ret = Compute_(matrix, 1, 1)
+                * Compute_(matrix, 1, 3)
+                * Compute_(matrix, 1, 5)
+                * Compute_(matrix, 1, 7)
+                * Compute_(matrix, 2, 1);
+            System.Console.WriteLine(ret);
+            return ret;
+        }
+
+        static long Compute_(char[][] matrix, int iinc, int jinc)
         {
             var ilen = matrix.Length;
             var jlen = matrix[0].Length;
@@ -42,9 +60,9 @@ namespace day_3
 
             do
             {
-                System.Console.WriteLine($"{i} {j}");
-                i += 1;
-                j += 3;
+                // System.Console.WriteLine($"{i} {j}");
+                i += iinc;
+                j += jinc;
                 // if (j >= jlen)
                 {
                     j = j % jlen;
