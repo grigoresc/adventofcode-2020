@@ -8,7 +8,6 @@ namespace day_3
     class Program
     {
 
-
         static char[][] readmatrix(string[] input)
         {
             char[][] matrix = new char[input.Length][];
@@ -21,21 +20,18 @@ namespace day_3
             matrix.ShowMatrix();
             return matrix;
         }
+
         static void Main(string[] args)
         {
-
-
-            // Compute(readmatrix(File.ReadAllLines("sample.txt")));//7
-            // Compute(readmatrix(File.ReadAllLines("input.txt")));//292
-            Compute2(readmatrix(File.ReadAllLines("sample.txt")));//336
-            Compute2(readmatrix(File.ReadAllLines("input.txt")));//9354744432
-
+            Assert.Equal(7,Compute(readmatrix(File.ReadAllLines("sample.txt"))));
+            Assert.Equal(292,Compute(readmatrix(File.ReadAllLines("input.txt"))));
+            Assert.Equal(336,Compute2(readmatrix(File.ReadAllLines("sample.txt"))));
+            Assert.Equal(9354744432,Compute2(readmatrix(File.ReadAllLines("input.txt"))));
         }
 
         static double Compute(char[][] matrix)
         {
             return Compute_(matrix, 1, 3);
-
         }
 
         static long Compute2(char[][] matrix)
@@ -60,14 +56,9 @@ namespace day_3
 
             do
             {
-                // System.Console.WriteLine($"{i} {j}");
                 i += iinc;
                 j += jinc;
-                // if (j >= jlen)
-                {
-                    j = j % jlen;
-                    // i = 0;
-                }
+                j = j % jlen;
                 if (matrix[i][j] == '#')
                     cnt++;
 
