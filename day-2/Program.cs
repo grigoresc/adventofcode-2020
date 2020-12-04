@@ -55,6 +55,7 @@ namespace day_2
                     cnt++;
             }
 
+            System.Console.WriteLine(cnt);
             return cnt;
 
         }
@@ -66,11 +67,12 @@ namespace day_2
             {
                 var one = p.password[p.min - 1] == p.letter;
                 var two = p.password[p.max - 1] == p.letter;
-                System.Console.WriteLine($"{one}|{two}|{p.password}|{p.letter}|{p.min}|{p.max}");
+                // System.Console.WriteLine($"{one}|{two}|{p.password}|{p.letter}|{p.min}|{p.max}");
                 if (one ^ two)
                     cnt++;
             }
 
+            System.Console.WriteLine(cnt);
             return cnt;
 
         }
