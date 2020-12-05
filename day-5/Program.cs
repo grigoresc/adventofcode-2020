@@ -17,8 +17,25 @@ namespace day_5
             // Solve("BBFFBBFRLL");
 
             //Solve1(File.ReadAllLines("sample.txt"));
-            Solve1(File.ReadAllLines("input.txt"));
+            Solve2(File.ReadAllLines("input.txt"));//539
             //Assert.Equal(2, Solve1(File.ReadAllText("sample.txt")));
+        }
+        private static int Solve2(string[] str)
+        {
+            int[] arr = new int[128 * 8];
+
+            var ret = str.Select(o =>
+            {
+                var id = Row(o) * 8 + Column(o);
+                arr[id] = 1;
+                return id;
+            }).Max();
+
+            for (int i = 0; i < str.Length; i++)
+                System.Console.Write($"{i}:{arr[i]} ");
+            System.Console.WriteLine(ret);
+            return ret;
+
         }
         private static int Solve1(string[] str)
         {
