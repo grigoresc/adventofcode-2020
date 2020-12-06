@@ -19,7 +19,7 @@ namespace day_2
         static Policy ToPolicy(string l)
         {
             Policy pol;
-            var (policy, password, _) = l.Split(": ");
+            (string policy, string password, _) = l.Split(": ");
             var (interval, letter, _) = policy.Split(" ");
             var (min, max, _) = interval.Split("-");
             pol.min = int.Parse(min);
@@ -38,8 +38,8 @@ namespace day_2
 
         public static void Solve()
         {
-            var numbers_sample = File.ReadAllLines("sample.txt").Select(o => ToPolicy(o)).ToArray();
-            var numbers = File.ReadAllLines("input.txt").Select(o => ToPolicy(o)).ToArray();
+            var numbers_sample = File.ReadAllLines("day-2.sample.txt").Select(o => ToPolicy(o)).ToArray();
+            var numbers = File.ReadAllLines("day-2.input.txt").Select(o => ToPolicy(o)).ToArray();
 
             Assert.Equal(2, compute(numbers_sample));
             Assert.Equal(467, compute(numbers));
