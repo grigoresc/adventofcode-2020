@@ -1,0 +1,19 @@
+using Xunit;
+
+namespace aoc.utils.tests
+{
+    public class ProgramShould
+    {
+        [Fact]
+        public void SolveDay6()
+        {
+            day_6.Program.Solve1();
+        }
+
+        [Fact]
+        public void SolveDay2()
+        {
+            day_2.Program.Solve();
+        }
+    }
+}

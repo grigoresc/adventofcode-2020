@@ -2,10 +2,11 @@
 using System.IO;
 using Xunit;
 using System.Linq;
+using aoc.utils;
 
 namespace day_2
 {
-    class Program
+    public class Program
     {
         struct Policy
         {
@@ -18,20 +19,24 @@ namespace day_2
         static Policy ToPolicy(string l)
         {
             Policy pol;
-
-            var pol_and_pass = l.Split(": ");
-            var int_and_letter = pol_and_pass[0].Split(" ");
-            var min_and_max = int_and_letter[0].Split("-");
-            pol.min = int.Parse(min_and_max[0]);
-            pol.max = int.Parse(min_and_max[1]);
-            pol.letter = int_and_letter[1][0];
-            pol.password = pol_and_pass[1];
+            var (policy, password, _) = l.Split(": ");
+            var (interval, letter, _) = policy.Split(" ");
+            var (min, max, _) = interval.Split("-");
+            pol.min = int.Parse(min);
+            pol.max = int.Parse(max);
+            pol.letter = letter[0];
+            pol.password = password;
 
             return pol;
 
         }
 
         static void Main(string[] args)
+        {
+            Solve();
+        }
+
+        public static void Solve()
         {
             var numbers_sample = File.ReadAllLines("sample.txt").Select(o => ToPolicy(o)).ToArray();
             var numbers = File.ReadAllLines("input.txt").Select(o => ToPolicy(o)).ToArray();
@@ -42,7 +47,6 @@ namespace day_2
 
             Assert.Equal(1, compute2(numbers_sample));
             Assert.Equal(441, compute2(numbers));
-
         }
 
         static int compute(Policy[] ps)
