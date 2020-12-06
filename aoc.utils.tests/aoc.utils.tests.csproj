@@ -17,6 +17,7 @@
     <ProjectReference Include="..\aoc.utils\aoc.utils.csproj" />
     <ProjectReference Include="..\day-2\day-2.csproj" />
     <ProjectReference Include="..\day-6\day-6.csproj" />
+    <ProjectReference Include="..\day-7\day-7.csproj" />
   </ItemGroup>
 
 </Project>
