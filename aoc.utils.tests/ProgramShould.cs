@@ -7,7 +7,7 @@ namespace aoc.utils.tests
         [Fact]
         public void SolveDay6()
         {
-            day_6.Program.Solve1();
+            day_6.Program.Solve();
         }
 
         [Fact]
