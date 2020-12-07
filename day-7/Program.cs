@@ -1,9 +1,18 @@
 ﻿using System.IO;
 using System.Linq;
 using Xunit;
+using aoc.utils;
+using System.Collections;
+using System.Collections.Generic;
+using System;
 
 namespace day_7
 {
+    struct bag
+    {
+        public string name;
+        public IList<string> inside;
+    }
     public class Program
     {
         static void Main(string[] args)
@@ -13,53 +22,107 @@ namespace day_7
 
         static public void Solve()
         {
-            aoc.utils.Log.WriteLine("");
-            Assert.Equal(11, Solve1(File.ReadAllText("day-7.sample.txt")));
-            Assert.Equal(6382, Solve1(File.ReadAllText("day-7.input.txt")));
-            Assert.Equal(6, Solve2(File.ReadAllText("day-7.sample.txt")));
-            Assert.Equal(3197, Solve2(File.ReadAllText("day-7.input.txt")));
+            aoc.utils.Log.WriteLine("-------------------------------------");
+
+            Solve2(File.ReadAllText("day-7.input.txt"));
         }
 
         static int Solve1(string input)
         {
-            var a = input.Split("\r\n\r\n");
+            var a = input.Split("\r\n");
             aoc.utils.Log.WriteLine(a.Length);
 
-            var ret = a.Select(g =>
+            var all = a.Select(g =>
             {
-                var all = g.Replace("\r\n", "");
-                var cnt = all.Distinct<char>().Count();
-                return cnt;
-            }).Sum();
+
+
+                var (bn, bags, _) = g.Split(" contain ");
+                var lb = bags.Substring(0, bags.Length - 1).Split(", ");
+                var lbs = lb.Select(o =>
+                {
+                    if (o.EndsWith("bag"))
+                        o += "s";
+
+
+                    var (no, _) = o.Split(" ");
+                    var name = o.Replace(no + " ", "");
+                    //Log.WriteLine(name);
+                    return name;
+                }).ToList();
+
+                bag b;
+                b.name = bn;
+                b.inside = lbs;
+
+                return new Tuple<string, bag>(bn, b);
+            });
+
+            var src = "shiny gold bags";
+
+            var ret = all.Where(o =>
+            {
+                return Contain(1, o, all, src);
+
+            }).Count();
 
             aoc.utils.Log.WriteLine($"ret:{ret}");
-            return ret;
-        }
 
+            return all.Count();
+        }
         static int Solve2(string input)
         {
-
-            var a = input.Split("\r\n\r\n");
+            var a = input.Split("\r\n");
             aoc.utils.Log.WriteLine(a.Length);
 
-            var ret = a.Select(g =>
-              {
-                  var pers = g.Split("\r\n");
-                  var first = pers[0];
+            var all = a.Select(g =>
+            {
 
-                  var all = g.Replace("\r\n", "");
-                  var cnt = 0;
-                  foreach (var a in first)
-                  {
-                      if (all.Count(c => c == a) == pers.Length)
-                          cnt++;
-                  }
 
-                  return cnt;
-              }).Sum();
+                var (bn, bags, _) = g.Split(" contain ");
+                var lb = bags.Substring(0, bags.Length - 1).Split(", ");
+                var lbs = lb.Select(o =>
+                {
+                    if (o.EndsWith("bag"))
+                        o += "s";
+
+
+                    var (no, _) = o.Split(" ");
+                    var name = o.Replace(no + " ", "");
+                    //Log.WriteLine(name);
+                    return name;
+                }).ToList();
+
+                bag b;
+                b.name = bn;
+                b.inside = lbs;
+
+                return new Tuple<string, bag>(bn, b);
+            });
+
+            var src = "shiny gold bags";
+
+            var ret = all.Where(o =>
+            {
+                return Contain(1, o, all, src);
+
+            }).Count();
 
             aoc.utils.Log.WriteLine($"ret:{ret}");
-            return ret;
+
+            return all.Count();
+        }
+
+        private static bool Contain(int lev, Tuple<string, bag> o, IEnumerable<Tuple<string, bag>> all, string src)
+        {
+            Console.WriteLine(lev + " " + o.Item1);
+            foreach (var co in o.Item2.inside)
+            {
+                var chi = all.FirstOrDefault(o => o.Item1 == co);
+                if (chi != null)
+                    if (Contain(lev + 1, chi, all, src))
+                        return true;
+            }
+            return o.Item2.inside.Where(o => o == src).Count() > 0;
         }
     }
 }
