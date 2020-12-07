@@ -19,6 +19,10 @@ namespace aoc.utils.tests
         {
             day_7.Program.Solve();
         }
-
+        [Fact]
+        public void SolveDay8()
+        {
+            day_8.Program.Solve();
+        }
     }
 }
