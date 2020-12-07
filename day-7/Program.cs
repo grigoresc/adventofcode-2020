@@ -14,6 +14,7 @@ namespace day_7
         public IList<int> cnt;
         public IList<string> inside;
     }
+
     public class Program
     {
         static void Main(string[] args)
@@ -24,8 +25,13 @@ namespace day_7
         static public void Solve()
         {
             aoc.utils.Log.WriteLine("-------------------------------------");
+            Assert.Equal(4, Solve1(File.ReadAllText("day-7.sample.txt")));
+            //Assert.Equal(302, Solve1(File.ReadAllText("day-7.input.txt")));
 
-            Solve2(File.ReadAllText("day-7.input.txt"));//32,126,4165
+            Assert.Equal(32, Solve2(File.ReadAllText("day-7.sample.txt")));//32,126,4165
+            Assert.Equal(126, Solve2(File.ReadAllText("day-7.sample2.txt")));//32,126,4165
+            Assert.Equal(4165, Solve2(File.ReadAllText("day-7.input.txt")));//32,126,4165
+
         }
 
         static int Solve1(string input)
@@ -42,7 +48,7 @@ namespace day_7
 
             aoc.utils.Log.WriteLine($"ret:{ret}");
 
-            return all.Count();
+            return ret;
         }
 
         private static IEnumerable<Tuple<string, bag>> Parse(string input)
@@ -90,7 +96,7 @@ namespace day_7
             ret -= 1;
             aoc.utils.Log.WriteLine($"ret: {ret}");
 
-            return all.Count();
+            return ret;
         }
 
         private static int Sum(int lev, Tuple<string, bag> o, IEnumerable<Tuple<string, bag>> all, string src)
