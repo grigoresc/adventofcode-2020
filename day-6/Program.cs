@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using Xunit;
 
@@ -22,12 +23,12 @@ namespace day_6
 
         static int Solve1(string input)
         {
-            var a = input.Split("\r\n\r\n");
+            var a = input.Split(Environment.NewLine + Environment.NewLine);
             aoc.utils.Log.WriteLine(a.Length);
 
             var ret = a.Select(g =>
             {
-                var all = g.Replace("\r\n", "");
+                var all = g.Replace(Environment.NewLine, "");
                 var cnt = all.Distinct<char>().Count();
                 return cnt;
             }).Sum();
@@ -39,15 +40,15 @@ namespace day_6
         static int Solve2(string input)
         {
 
-            var a = input.Split("\r\n\r\n");
+            var a = input.Split(Environment.NewLine + Environment.NewLine);
             aoc.utils.Log.WriteLine(a.Length);
 
             var ret = a.Select(g =>
               {
-                  var pers = g.Split("\r\n");
+                  var pers = g.Split(Environment.NewLine);
                   var first = pers[0];
 
-                  var all = g.Replace("\r\n", "");
+                  var all = g.Replace(Environment.NewLine, "");
                   var cnt = 0;
                   foreach (var a in first)
                   {

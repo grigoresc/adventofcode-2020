@@ -7,29 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="day-7.input.txt" />
-    <None Remove="day-7.sample.txt" />
-    <None Remove="day-7.sample2.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="day-7.sample2.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="day-7.input.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="day-7.sample.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="xunit.assert" Version="2.4.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\aoc.utils\aoc.utils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="day-7.input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="day-7.sample.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="day-7.sample2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

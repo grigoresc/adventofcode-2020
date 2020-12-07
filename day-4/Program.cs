@@ -13,17 +13,18 @@ namespace day_4
         {
             Assert.Equal(2, Solve1(File.ReadAllText("sample.txt")));
             Assert.Equal(245, Solve1(File.ReadAllText("input.txt")));
+
             Assert.Equal(0, Solve2(File.ReadAllText("sample2.txt")));
             Assert.Equal(133, Solve2(File.ReadAllText("input.txt")));
         }
 
         private static int Solve1(string str)
         {
-            var ps = str.Split("\n\n");
+            var ps = str.Split(Environment.NewLine + Environment.NewLine);
             var cnt = 0;
             foreach (var p in ps)
             {
-                var vals = p.Replace("\n", " ").Split(" ").Select(s =>
+                var vals = p.Replace(Environment.NewLine, " ").Split(" ").Select(s =>
                 {
                     var kv = s.Split(":");
                     return kv[0];
@@ -43,12 +44,11 @@ namespace day_4
 
         private static int Solve2(string str)
         {
-            var ps = str.Split("\n\n");
+            var ps = str.Split(Environment.NewLine + Environment.NewLine);
             var cnt = 0;
             foreach (var p in ps)
             {
-                // System.Console.WriteLine(p.Replace("\n", " "));
-                var vals = p.Replace("\n", " ").Split(" ").Select(s =>
+                var vals = p.Replace(Environment.NewLine, " ").Split(" ").Select(s =>
                     {
                         var kv = s.Split(":");
                         return new Tuple<string, string>(kv[0], kv[1]);

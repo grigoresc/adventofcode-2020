@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 using Xunit;
-using System.Linq;
+using aoc.utils;
 
 namespace day_3
 {
@@ -23,10 +23,10 @@ namespace day_3
 
         static void Main(string[] args)
         {
-            Assert.Equal(7,Compute(readmatrix(File.ReadAllLines("sample.txt"))));
-            Assert.Equal(292,Compute(readmatrix(File.ReadAllLines("input.txt"))));
-            Assert.Equal(336,Compute2(readmatrix(File.ReadAllLines("sample.txt"))));
-            Assert.Equal(9354744432,Compute2(readmatrix(File.ReadAllLines("input.txt"))));
+            Assert.Equal(7, Compute(readmatrix(File.ReadAllLines("sample.txt"))));
+            Assert.Equal(292, Compute(readmatrix(File.ReadAllLines("input.txt"))));
+            Assert.Equal(336, Compute2(readmatrix(File.ReadAllLines("sample.txt"))));
+            Assert.Equal(9354744432, Compute2(readmatrix(File.ReadAllLines("input.txt"))));
         }
 
         static double Compute(char[][] matrix)

@@ -34,7 +34,7 @@ namespace day_7
 
         private static Dictionary<string, Bag> Parse(string input)
         {
-            var a = input.Split("\r\n");
+            var a = input.Split(Environment.NewLine);
 
             var all = a.Select(g =>
             {

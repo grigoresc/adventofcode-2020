@@ -10,4 +10,10 @@
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="input.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Drawing;
-using static System.String;
-using System.Linq;
+using System.Collections.Generic;
+using System.Text;
 
-namespace day_3
+namespace aoc.utils
 {
-    public static class Utils
+    public static class Matrix
     {
         public static void ShowMatrix(this char[][] img, int lmax, int cmax)
         {
