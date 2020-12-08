@@ -19,7 +19,7 @@ namespace day_8
             Solve1(File.ReadAllLines("day-8.input.txt"));
             Solve2(File.ReadAllLines("day-8.sample.txt"));
             Solve2(File.ReadAllLines("day-8.input.txt"));
-            //8
+            //5
             //1331
             //8
             //1121

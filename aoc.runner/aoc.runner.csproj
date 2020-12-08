@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="xunit" Version="2.4.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageReference Include="coverlet.collector" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\day-1\day-1.csproj" />
+    <ProjectReference Include="..\day-2\day-2.csproj" />
+    <ProjectReference Include="..\day-3\day-3.csproj" />
+    <ProjectReference Include="..\day-4\day-4.csproj" />
+    <ProjectReference Include="..\day-5\day-5.csproj" />
+    <ProjectReference Include="..\day-6\day-6.csproj" />
+    <ProjectReference Include="..\day-7\day-7.csproj" />
+    <ProjectReference Include="..\day-8\day-8.csproj" />
+  </ItemGroup>
+
+</Project>

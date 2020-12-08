@@ -14,7 +14,6 @@ namespace day_6
 
         static public void Solve()
         {
-            aoc.utils.Log.WriteLine("");
             Assert.Equal(11, Solve1(File.ReadAllText("day-6.sample.txt")));
             Assert.Equal(6382, Solve1(File.ReadAllText("day-6.input.txt")));
             Assert.Equal(6, Solve2(File.ReadAllText("day-6.sample.txt")));
@@ -24,7 +23,6 @@ namespace day_6
         static int Solve1(string input)
         {
             var a = input.Split(Environment.NewLine + Environment.NewLine);
-            aoc.utils.Log.WriteLine(a.Length);
 
             var ret = a.Select(g =>
             {
@@ -33,15 +31,13 @@ namespace day_6
                 return cnt;
             }).Sum();
 
-            aoc.utils.Log.WriteLine($"ret:{ret}");
+            Console.WriteLine(ret);
             return ret;
         }
 
         static int Solve2(string input)
         {
-
             var a = input.Split(Environment.NewLine + Environment.NewLine);
-            aoc.utils.Log.WriteLine(a.Length);
 
             var ret = a.Select(g =>
               {
@@ -59,7 +55,7 @@ namespace day_6
                   return cnt;
               }).Sum();
 
-            aoc.utils.Log.WriteLine($"ret:{ret}");
+            Console.WriteLine(ret);
             return ret;
         }
     }
