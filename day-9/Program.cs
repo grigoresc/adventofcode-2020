@@ -15,105 +15,66 @@ namespace day_9
         }
         public static void Solve()
         {
-            Solve1(File.ReadAllLines("day-9.sample.txt"));
-            Solve1(File.ReadAllLines("day-9.input.txt"));
-            Solve2(File.ReadAllLines("day-9.sample.txt"));
-            Solve2(File.ReadAllLines("day-9.input.txt"));
+            Solve1(File.ReadAllLines("day-9.sample.txt"), 5);
+            Solve1(File.ReadAllLines("day-9.input.txt"), 25);
+            Solve2(File.ReadAllLines("day-9.sample.txt"), 5);
+            Solve2(File.ReadAllLines("day-9.input.txt"), 25);
         }
 
-        private static int Solve1(string[] lines)
+        private static long Solve1(string[] lines, int p)
         {
-            int acc = Run1(lines);
+            long acc = Run1(lines, out var pos, p);
             var ret = acc;
             Console.WriteLine(ret);
             return ret;
         }
 
-        private static int Run1(string[] lines)
+        private static long Run1(string[] lines, out int pos, int p)
         {
-            var ex = new int[lines.Length];
-            var acc = 0;
-            var pos = 0;
-            while (ex[pos] == 0)
+            var a = lines.Select(o => long.Parse(o)).ToArray();
+            pos = -1;
+
+            for (int x = p; x < a.Length; x++)
             {
-                ex[pos] = 1;
-                var (cmd, var, _) = lines[pos].Split(" ");
-                switch (cmd)
+                var e = a[x];
+                var found = false;
+                for (int i = 0; i < p; i++)
+                    for (int j = i + 1; j < p; j++)
+                        if (e == a[x - i - 1] + a[x - j - 1])
+                        {
+                            found = true;
+                            break;
+                        }
+                if (!found)
                 {
-                    case "nop":
-                        pos++;
-                        break;
-                    case
-                        "jmp":
-                        pos += int.Parse(var);
-                        break;
-                    case
-                        "acc":
-                        acc += int.Parse(var);
-                        pos++;
-                        break;
-                }
-
-
-            }
-
-            return acc;
-        }
-
-        private static int Solve2(string[] lines)
-        {
-            for (int i = 0; i < lines.Length - 1; i++)
-            {
-                int pos;
-                int acc = Run2(lines, i, out pos);
-                if (pos == lines.Length)
-                {
-                    var ret = acc;
-                    Console.WriteLine(ret);
-                    return ret;
+                    pos = x;
+                    return e;
                 }
             }
-            throw new Exception("shouldnt be here");
+            return 0;
         }
 
-        private static int Run2(string[] lines, int s, out int pos)
+        private static long Solve2(string[] lines, int p)
         {
-            var ex = new int[lines.Length];
-            var acc = 0;
-            pos = 0;
-            while (ex[pos] == 0)
-            {
-                ex[pos] = 1;
-                var (cmd, var, _) = lines[pos].Split(" ");
-                if (pos == s)
-                {
-                    if (cmd == "nop") cmd = "jmp";
-                    else if (cmd == "jmp") cmd = "nop";
-
-                }
-                switch (cmd)
-                {
-                    case "nop":
-                        pos++;
-                        break;
-                    case
-                        "jmp":
-                        pos += int.Parse(var);
-                        break;
-                    case
-                        "acc":
-                        acc += int.Parse(var);
-                        pos++;
-                        break;
-                }
-                if (pos >= lines.Length)
-                    break;
-
-            }
-
-            return acc;
+            Run1(lines, out var pos, p);
+            var ret = Run2(lines, pos);
+            Console.WriteLine(ret);
+            return ret;
         }
 
-
+        private static long Run2(string[] lines, int pos)
+        {
+            var a = lines.Select(o => long.Parse(o)).ToArray();
+            for (int x = 0; x < pos; x++)
+                for (int len = 1; len < pos + 1 - x; len++)
+                {
+                    var sum = a.Skip(x).Take(len).Sum();
+                    if (sum == a[pos])
+                    {
+                        return a.Skip(x).Take(len).Min() + a.Skip(x).Take(len).Max();
+                    }
+                }
+            return 0;
+        }
     }
 }
