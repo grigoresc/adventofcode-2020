@@ -30,7 +30,7 @@ namespace day_14
                 var (le, ri, _) = line.Split(" = ");
                 if (!le.Contains("mem"))
                 {
-                    ProcessMask1(ri, out zeros, out ones);
+                    ProcessMask(ri, out zeros, out ones);
                     //Console.WriteLine(Convert.ToString(zeros, 2));
                     //Console.WriteLine(Convert.ToString(ones, 2));
                     continue;
@@ -44,33 +44,6 @@ namespace day_14
             }
 
             return ram.Sum(o => o.Value);
-        }
-
-        private static void ProcessMask1(string mask, out long zeros, out long ones)
-        {
-            zeros = 0L;
-            ones = 0L;
-            for (int i = 0; i < mask.Length; i++)
-            {
-
-                if (mask[i] == '0')
-                {
-                }
-                else if (mask[i] == '1')
-                {
-                    zeros = zeros | 1;
-                    ones = ones | 1;
-                }
-                else
-                {
-                    zeros = zeros | 1;
-                }
-
-                if (i == mask.Length - 1)
-                    continue;
-                zeros = zeros << 1;
-                ones = ones << 1;
-            }
         }
         private static long solve2(string[] vs)
         {
@@ -112,7 +85,7 @@ namespace day_14
 
                     foreach (var mask in masks)
                     {
-                        ProcessMask2(mask, out long zeros, out long ones);
+                        ProcessMask(mask, out long zeros, out long ones);
                         zerosl.Add(zeros);
                         onesl.Add(ones);
                         //Console.WriteLine(Convert.ToString(zeros, 2));
@@ -137,7 +110,7 @@ namespace day_14
             return ram.Sum(o => o.Value);
         }
 
-        private static void ProcessMask2(string mask, out long zeros, out long ones)
+        private static void ProcessMask(string mask, out long zeros, out long ones)
         {
             zeros = 0L;
             ones = 0L;
