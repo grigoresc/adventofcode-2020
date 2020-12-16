@@ -25,6 +25,11 @@ namespace day_11
 
         static void Main(string[] args)
         {
+            Solve();
+        }
+
+        public static void Solve()
+        {
             Console.WriteLine(Solve1(readmatrix(File.ReadAllLines("day-11.input.txt"))));
             Console.WriteLine(Solve2(readmatrix(File.ReadAllLines("day-11.input.txt"))));
         }
