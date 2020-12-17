@@ -17,70 +17,63 @@ namespace day_17
 
         public static void Solve()
         {
+            Assert.Equal(322, solve1(readmatrix(File.ReadAllLines("day-17.input.txt"))));
             Assert.Equal(2000, solve2(readmatrix(File.ReadAllLines("day-17.input.txt"))));
         }
 
+        private static long solve1(char[][] m)
+        {
+            return solve(m, getdirs1);
+        }
 
         private static long solve2(char[][] m)
         {
+            return solve(m, getdirs2);
+        }
+
+        private static long solve(char[][] m, Func<List<Tuple<int, int, int, int>>> getdirs)
+        {
             var ret = 0L;
-            m.ShowMatrix();
-            Console.WriteLine();
             char[][][] t = new char[][][] { m };
             char[][][][] ht = new char[][][][] { t };
 
             for (int i = 0; i < 6; i++)
             {
                 ht = Expand(ht);
-                ht = Transform(ht, out ret);
+                ht = Transform(ht, out ret, getdirs());
             }
             Console.WriteLine(ret);
             return ret;
         }
-        static List<Tuple<int, int, int, int>> getdirs()
+
+        static List<Tuple<int, int, int, int>> getdirs1()
+        {
+            var r = new List<Tuple<int, int, int, int>>();
+            for (var w = 0; w <= 0; w++)
+                for (var z = -1; z <= 1; z++)
+                    for (var x = -1; x <= 1; x++)
+                        for (var y = -1; y <= 1; y++)
+                            if (w != 0 || z != 0 || x != 0 || y != 0)
+                                r.Add(new Tuple<int, int, int, int>(z, x, y, w));
+            return r;
+        }
+        static List<Tuple<int, int, int, int>> getdirs2()
         {
             var r = new List<Tuple<int, int, int, int>>();
             for (var w = -1; w <= 1; w++)
-            {
-                if (w != 0)
-                    r.Add(new Tuple<int, int, int, int>(0, 0, 0, w));
-                r.Add(new Tuple<int, int, int, int>(0, -1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(0, +1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(0, 0, -1, w));
-                r.Add(new Tuple<int, int, int, int>(0, 0, +1, w));
-                r.Add(new Tuple<int, int, int, int>(0, -1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(0, -1, +1, w));
-                r.Add(new Tuple<int, int, int, int>(0, +1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(0, +1, 1, w));
-
-                r.Add(new Tuple<int, int, int, int>(-1, 0, 0, w));
-                r.Add(new Tuple<int, int, int, int>(-1, -1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(-1, +1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(-1, 0, -1, w));
-                r.Add(new Tuple<int, int, int, int>(-1, 0, +1, w));
-                r.Add(new Tuple<int, int, int, int>(-1, -1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(-1, -1, +1, w));
-                r.Add(new Tuple<int, int, int, int>(-1, +1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(-1, +1, 1, w));
-
-                r.Add(new Tuple<int, int, int, int>(+1, 0, 0, w));
-                r.Add(new Tuple<int, int, int, int>(+1, -1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(+1, +1, 0, w));
-                r.Add(new Tuple<int, int, int, int>(+1, 0, -1, w));
-                r.Add(new Tuple<int, int, int, int>(+1, 0, +1, w));
-                r.Add(new Tuple<int, int, int, int>(+1, -1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(+1, -1, +1, w));
-                r.Add(new Tuple<int, int, int, int>(+1, +1, -1, w));
-                r.Add(new Tuple<int, int, int, int>(+1, +1, 1, w));
-            }
+                for (var z = -1; z <= 1; z++)
+                    for (var x = -1; x <= 1; x++)
+                        for (var y = -1; y <= 1; y++)
+                            if (w != 0 || z != 0 || x != 0 || y != 0)
+                                r.Add(new Tuple<int, int, int, int>(z, x, y, w));
             return r;
         }
-        public static char[][][][] Transform(char[][][][] m, out long active)
+        public static char[][][][] Transform(char[][][][] hcube, out long active, List<Tuple<int, int, int, int>> dirs)
         {
-            int wmax = m.Length;
-            int zmax = m[0].Length;
-            int lmax = m[0][0].Length;
-            int cmax = m[0][0][0].Length;
+            int wmax = hcube.Length;
+            int zmax = hcube[0].Length;
+            int xmax = hcube[0][0].Length;
+            int ymax = hcube[0][0][0].Length;
             var newm = new char[wmax][][][];
             active = 0;
 
@@ -90,39 +83,29 @@ namespace day_17
 
                 for (int z = 0; z < zmax; z++)
                 {
-                    var mslice = new char[lmax][];
-                    for (int i = 0; i < lmax; i++)
+                    var mslice = new char[xmax][];
+                    for (int x = 0; x < xmax; x++)
                     {
-                        mslice[i] = new char[cmax];
+                        mslice[x] = new char[ymax];
 
-                        for (int c = 0; c < cmax; c++)
+                        for (int y = 0; y < ymax; y++)
                         {
-                            mslice[i][c] = '.';
-                            var dirs = getdirs();
-
-                            var n = dirs
-                                .Select(o => (z + o.Item1, i + o.Item2, c + o.Item3, w + o.Item4))
+                            var neighbo = dirs
+                                .Select(o => (z + o.Item1, x + o.Item2, y + o.Item3, w + o.Item4))
                                 .Where(o => 0 <= o.Item1 && o.Item1 < zmax
-                                    && 0 <= o.Item2 && o.Item2 < lmax
-                                    && 0 <= o.Item3 && o.Item3 < cmax
+                                    && 0 <= o.Item2 && o.Item2 < xmax
+                                    && 0 <= o.Item3 && o.Item3 < ymax
                                     && 0 <= o.Item4 && o.Item4 < wmax
                                 );
 
-                            var cntActive = n.Where(o => m[o.Item4][o.Item1][o.Item2][o.Item3] == '#').Count();
-                            var cntInactive = n.Where(o => m[o.Item4][o.Item1][o.Item2][o.Item3] == '.').Count();
+                            var cntActive = neighbo.Where(o => hcube[o.Item4][o.Item1][o.Item2][o.Item3] == '#').Count();
 
-                            var val = m[w][z][i][c];
-                            if (val == '#')
-                            {
-                                if (cntActive != 2 && cntActive != 3)
-                                    val = '.';
-                            }
-                            else
-                            {
-                                if (cntActive == 3)
-                                    val = '#';
-                            }
-                            mslice[i][c] = val;
+                            var val = hcube[w][z][x][y];
+                            if (val == '#' && cntActive != 2 && cntActive != 3)
+                                val = '.';
+                            if (val == '.' && cntActive == 3)
+                                val = '#';
+                            mslice[x][y] = val;
                             if (val == '#') active++;
                         }
                     }
@@ -131,74 +114,46 @@ namespace day_17
                 }
                 newm[w] = hslice;
             }
-
-            //Console.WriteLine("transformed:");
-            //foreach (var hs in newm)
-            //{
-            //    foreach (var s in hs)
-            //    {
-            //        Console.WriteLine("slice t:");
-            //        s.ShowMatrix();
-            //    }
-            //}
-            //Console.Read();
             return newm;
         }
 
-        public static char[][][][] Expand(char[][][][] m)
+        public static char[][][][] Expand(char[][][][] hcube)
         {
-            int wmax = m.Length + 2;
-            int zmax = m[0].Length + 2;
-            int lmax = m[0][0].Length + 2;
-            int cmax = m[0][0][0].Length + 2;
+            int wmax = hcube.Length + 2;
+            int zmax = hcube[0].Length + 2;
+            int xmax = hcube[0][0].Length + 2;
+            int ymax = hcube[0][0][0].Length + 2;
 
-            var newm = new char[wmax][][][];
+            var newhcube = new char[wmax][][][];
 
+            //expand
             for (int w = 0; w < wmax; w++)
             {
                 var hslice = new char[zmax][][];
 
                 for (int z = 0; z < zmax; z++)
                 {
-                    var mslice = new char[lmax][];
-                    for (int i = 0; i < lmax; i++)
+                    var mslice = new char[xmax][];
+                    for (int x = 0; x < xmax; x++)
                     {
-                        mslice[i] = new char[cmax];
-
-                        for (int c = 0; c < cmax; c++)
-                            mslice[i][c] = '.';
+                        mslice[x] = Enumerable.Repeat('.', ymax).ToArray();
                     }
                     hslice[z] = mslice;
 
                 }
-                newm[w] = hslice;
+                newhcube[w] = hslice;
             }
 
             //copy
             for (int w = 1; w < wmax - 1; w++)
-            {
                 for (int z = 1; z < zmax - 1; z++)
-                {
-                    for (int l = 1; l < lmax - 1; l++)
-                    {
-                        for (int c = 1; c < cmax - 1; c++)
+                    for (int x = 1; x < xmax - 1; x++)
+                        for (int y = 1; y < ymax - 1; y++)
                         {
-                            char val = m[w - 1][z - 1][l - 1][c - 1];
-                            newm[w][z][l][c] = val;
+                            char val = hcube[w - 1][z - 1][x - 1][y - 1];
+                            newhcube[w][z][x][y] = val;
                         }
-                    }
-                }
-            }
-
-
-            //foreach (var hs in newm)
-            //{
-            //    Console.WriteLine("slice:");
-            //    foreach (var s in hs)
-            //        s.ShowMatrix();
-            //}
-            //Console.Read();
-            return newm;
+            return newhcube;
         }
 
         static char[][] readmatrix(string[] input)
@@ -210,7 +165,7 @@ namespace day_17
                 for (int j = 0; j < input[i].Length; j++)
                     matrix[i][j] = input[i][j];
             }
-            //matrix.ShowMatrix();
+            matrix.ShowMatrix();
             return matrix;
         }
     }
