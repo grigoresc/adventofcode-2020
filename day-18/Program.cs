@@ -17,7 +17,7 @@ namespace day_17
 
         public static void Solve()
         {
-            solve2(File.ReadAllLines("day-18.input.txt"));
+            Assert.Equal(33331817392479, solve2(File.ReadAllLines("day-18.input.txt")));
         }
 
         private static long solve2(string[] vs)
@@ -26,11 +26,8 @@ namespace day_17
             foreach (var line in vs)
             {
                 var l = line.Replace(" ", "");
-                //l = string.Join("", l.Reverse().ToArray()).Replace(")", "T").Replace("(", ")").Replace("T", "(");
                 var e = calc(l);
                 ret += e;
-                Console.WriteLine(e);
-
             }
             Console.WriteLine(ret);
             return ret;
