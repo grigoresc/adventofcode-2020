@@ -49,6 +49,10 @@ namespace day_19
 
             //var all = construct(rules, 0);
             var all42 = Construct(rules, 42);
+
+            var all42_reg = ConstructRegex(rules, 42);
+            var all31_reg = ConstructRegex(rules, 31);
+
             var all31 = Construct(rules, 31);
             long[][] all;
             //all = new[] { new[] { 11L } };
@@ -73,8 +77,11 @@ namespace day_19
                      }
                 );
 
+            var allstrings_reg = $"^({all42_reg}){{1}}({all42_reg}){{1}}({all31_reg}{{1}})$";
+
+            var allstrings_reg_a = new string[] { allstrings_reg };
             var sln = new List<int>();
-            foreach (var o in allstrings)
+            foreach (var o in allstrings_reg_a)
             {
                 var r = new Regex(o);
                 var f = li
@@ -136,6 +143,30 @@ namespace day_19
         {
             var chars = m.Where(m => IsEndingRule(rules, m)).Select(r => rules[r].cha.GetValueOrDefault().ToString()).ToArray();
             return string.Join("", chars);
+        }
+
+        private static string ConstructRegex(Dictionary<long, Rule> rules, long pos)
+        {
+            var r = rules[pos];
+
+            if (r.cha.HasValue)
+                return rules[pos].cha.ToString();
+
+            var ret = new List<string>();
+            foreach (var ru in r.rules)
+            {
+
+                var s = "";
+                foreach (var ruin in ru)
+                {
+                    var li = ConstructRegex(rules, ruin);
+
+                    s += li;
+                }
+                s = "(" + s + ")";
+                ret.Add(s);
+            }
+            return "(" + string.Join("|", ret) + ")";
         }
 
         private static long[][] Construct(Dictionary<long, Rule> rules, long pos)
