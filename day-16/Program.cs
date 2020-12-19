@@ -4,7 +4,6 @@ using Xunit;
 using aoc.utils;
 using System.Collections.Generic;
 using System;
-using aoc.utils;
 
 namespace day_16
 {
