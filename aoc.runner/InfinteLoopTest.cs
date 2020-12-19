@@ -15,7 +15,7 @@ namespace aoc.runner
             writer.AutoFlush = true;
 
             Console.WriteLine($"RUN BEGIN {DateTime.Now}");
-            day_17.Program.Solve();
+            day_19.Program.Solve();
             Console.WriteLine($"RUN END {DateTime.Now}");
         }
     }

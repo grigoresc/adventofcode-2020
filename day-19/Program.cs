@@ -5,7 +5,7 @@ using aoc.utils;
 using System.Collections.Generic;
 using System;
 
-namespace day_17
+namespace day_19
 {
     public class Program
     {
@@ -17,74 +17,128 @@ namespace day_17
 
         public static void Solve()
         {
-            solve2(File.ReadAllLines("day-19.input.txt"));
+            solve1(File.ReadAllText("day-19.input.txt"));
+            //solve1(File.ReadAllText("day-19.sample2.p2.txt"));
         }
 
-        private static long solve2(string[] vs)
+        private static long solve1(string vs)
         {
             var ret = 0L;
-            foreach (var line in vs)
+            var (fi, la, _) = vs.Split(Environment.NewLine + Environment.NewLine);
+            var ru = fi.Split(Environment.NewLine);
+            var rules = ru.Select(s =>
             {
-                var l = line.Replace(" ", "");
-                //l = string.Join("", l.Reverse().ToArray()).Replace(")", "T").Replace("(", ")").Replace("T", "(");
-                var e = calc(l);
-                ret += e;
-                Console.WriteLine(e);
+                var (pos, v, _) = s.Split(": ");
+                long[][] vl = null;
+                char? c = null;
+                if (v.Contains("\""))
+                {
+                    c = v[1];
+                }
+                else
+                {
+                    vl = v.Split(" | ").Select(s =>
+                    {
+                        return s.Split(" ").Select(long.Parse).ToArray();
+                    }).ToArray();
+                }
+                return new Rule(long.Parse(pos), vl, c);
+            }).ToDictionary(k => k.pos, v => v);
 
-            }
+
+            var all = construct(rules, 0);
+            //Console.WriteLine(all.Count());
+            //var a8 = construct(rules, 8);
+            //var a11 = construct(rules, 11);
+            //var a42 = construct(rules, 42);
+            //var a31 = construct(rules, 31);
+            var li = la.Split(Environment.NewLine);
+
+            var allstrings = all.Select(m =>
+            {
+                var chars = m.Select(r => rules[r].cha.GetValueOrDefault().ToString()).ToArray();
+                return string.Join("", chars);
+            }).ToArray();
+            var m = li.Where(l => allstrings.Contains(l));
+            ret = m.Count();
+
             Console.WriteLine(ret);
             return ret;
         }
 
-        private static string operand(string l, out int length)
+        private static long[][] construct(Dictionary<long, Rule> rules, long pos)
         {
-            if (l[0] != '(')
+            var r = rules[pos];
+
+            if (r.cha.HasValue)
+                return new[] { new[] { pos } };
+
+            var ret = new List<long[]>();
+            foreach (var ru in r.rules)
             {
-                length = 1;
-                return l[0].ToString();
-            }
-            else
-            {
-                var c = 0;
-                var o = 1;
-                var pos = 0;
-                while (c != o)
+                long[][] s = null;
+
+                foreach (var ruin in ru)
                 {
-                    pos++;
-                    if (l[pos] == '(') o++;
-                    if (l[pos] == ')') c++;
+                    var li = construct(rules, ruin);
+
+                    if (s == null)
+                    {
+                        s = li;
+                        continue;
+                    }
+
+                    s = (from first in s
+                         from second in li
+                         select first.Concat(second).ToArray()).ToArray();
                 }
-                length = pos + 1;
-                return l.Substring(1, pos - 1);
+                ret.AddRange(s);
             }
+            return ret.ToArray();
+        }
+    }
+
+    internal struct Rule
+    {
+        public long pos;
+        public long[][] rules;
+        public char? cha;
+
+        public Rule(long pos, long[][] rules, char? cha)
+        {
+            this.pos = pos;
+            this.rules = rules;
+            this.cha = cha;
         }
 
-        private static long calc(string l)
+        public override bool Equals(object obj)
         {
-            var leftexpr = operand(l, out var leftle);
-            var left = l.StartsWith("(") ? calc(leftexpr) : long.Parse(leftexpr);
+            return obj is Rule other &&
+                   pos == other.pos &&
+                   EqualityComparer<long[][]>.Default.Equals(rules, other.rules) &&
+                   cha == other.cha;
+        }
 
-            var oppos = leftle;
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(pos, rules, cha);
+        }
 
-            var rightpos = oppos + 1;
+        public void Deconstruct(out long pos, out long[][] rules, out char? cha)
+        {
+            pos = this.pos;
+            rules = this.rules;
+            cha = this.cha;
+        }
 
-            var result = left;
-            while (oppos < l.Length && l[oppos] == '+')
-            {
-                var righexp = operand(l.Substring(rightpos), out var righle);
-                var right = calc(righexp);
-                result += right;
-                oppos = rightpos + righle;
-                rightpos = oppos + 1;
-            }
+        public static implicit operator (long pos, long[][] rules, char? cha)(Rule value)
+        {
+            return (value.pos, value.rules, value.cha);
+        }
 
-            if (rightpos < l.Length)
-            {
-                Assert.Equal('*', l[oppos]);
-                var right = calc(l.Substring(rightpos));
-                result *= right;
-            }
-            return result;
+        public static implicit operator Rule((long pos, long[][] rules, char? cha) value)
+        {
+            return new Rule(value.pos, value.rules, value.cha);
         }
     }
 }
