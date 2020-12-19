@@ -46,24 +46,44 @@ namespace day_19
             }).ToDictionary(k => k.pos, v => v);
 
 
-            var all = construct(rules, 0);
-            //Console.WriteLine(all.Count());
-            //var a8 = construct(rules, 8);
-            //var a11 = construct(rules, 11);
-            //var a42 = construct(rules, 42);
-            //var a31 = construct(rules, 31);
+            //var all = construct(rules, 0);
+            var all42 = construct(rules, 42);
+            var all31 = construct(rules, 31);
+            long[][] all;
+            //all = new[] { new[] { 11L } };
+            all = Combine(all42, all31);
+            all = Combine(all42, all);
+
             var li = la.Split(Environment.NewLine);
 
+            var c8 = all.Where((m, idx) => m.Skip(1).Contains(8)).ToArray();
+            var c11 = all.Where((m, idx) => m.Where(o => o == 11).Count() > 1).ToArray();
             var allstrings = all.Select(m =>
-            {
-                var chars = m.Select(r => rules[r].cha.GetValueOrDefault().ToString()).ToArray();
-                return string.Join("", chars);
-            }).ToArray();
+               {
+                   return Match(m, rules);
+               }).ToArray();
+
             var m = li.Where(l => allstrings.Contains(l));
+
+            var liminle = li.Select(l => l.Length).Min();
+            var limaxle = li.Select(l => l.Length).Max();
+            var limi = li.Where(l => l.Length == liminle).Count();
+            var linonmi = li.Where(l => l.Length > liminle).Count();
             ret = m.Count();
 
             Console.WriteLine(ret);
             return ret;
+        }
+
+        private static bool IsEndingRule(Dictionary<long, Rule> rules, long o)
+        {
+            return (rules[o].pos == 110 || rules[o].pos == 39);
+        }
+
+        private static string Match(long[] m, Dictionary<long, Rule> rules)
+        {
+            var chars = m.Where(m => IsEndingRule(rules, m)).Select(r => rules[r].cha.GetValueOrDefault().ToString()).ToArray();
+            return string.Join("", chars);
         }
 
         private static long[][] construct(Dictionary<long, Rule> rules, long pos)
@@ -76,25 +96,25 @@ namespace day_19
             var ret = new List<long[]>();
             foreach (var ru in r.rules)
             {
-                long[][] s = null;
+                long[][] s = new[] { new[] { pos } };
 
                 foreach (var ruin in ru)
                 {
                     var li = construct(rules, ruin);
 
-                    if (s == null)
-                    {
-                        s = li;
-                        continue;
-                    }
-
-                    s = (from first in s
-                         from second in li
-                         select first.Concat(second).ToArray()).ToArray();
+                    s = Combine(s, li);
                 }
                 ret.AddRange(s);
             }
             return ret.ToArray();
+        }
+
+        private static long[][] Combine(long[][] s, long[][] li)
+        {
+            s = (from first in s
+                 from second in li
+                 select first.Concat(second).ToArray()).ToArray();
+            return s;
         }
     }
 
