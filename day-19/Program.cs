@@ -21,12 +21,43 @@ namespace day_19
             //solve1(File.ReadAllText("day-19.sample2.p2.txt"));
         }
 
-        private static long solve1(string vs)
+        private static long solve1(string input)
         {
-            var ret = 0L;
+            long ret;
+            Dictionary<long, Rule> rules;
+            string[] li;
+            Parse(input, out rules, out li);
+            ret = 0L;
+            //var all = construct(rules, 0);
+            var all42 = Construct(rules, 42);
+            var all31 = Construct(rules, 31);
+            long[][] all;
+            //all = new[] { new[] { 11L } };
+            all = Combine(all42, all31);
+            all = Combine(all42, all);
+
+            //var c8 = all.Where((m, idx) => m.Skip(1).Contains(8)).ToArray();
+            //var c11 = all.Where((m, idx) => m.Where(o => o == 11).Count() > 1).ToArray();
+            string[] allstrings = ExtractStrings(rules, all);
+
+            var m = li.Where(l => allstrings.Contains(l));
+
+            var liminle = li.Select(l => l.Length).Min();
+            var limaxle = li.Select(l => l.Length).Max();
+            var limi = li.Where(l => l.Length == liminle).Count();
+            var linonmi = li.Where(l => l.Length > liminle).Count();
+            ret = m.Count();
+
+            Console.WriteLine(ret);
+            return ret;
+        }
+
+        private static void Parse(string vs, out Dictionary<long, Rule> rules, out string[] li)
+        {
+
             var (fi, la, _) = vs.Split(Environment.NewLine + Environment.NewLine);
             var ru = fi.Split(Environment.NewLine);
-            var rules = ru.Select(s =>
+            rules = ru.Select(s =>
             {
                 var (pos, v, _) = s.Split(": ");
                 long[][] vl = null;
@@ -44,35 +75,15 @@ namespace day_19
                 }
                 return new Rule(long.Parse(pos), vl, c);
             }).ToDictionary(k => k.pos, v => v);
+            li = la.Split(Environment.NewLine);
+        }
 
-
-            //var all = construct(rules, 0);
-            var all42 = construct(rules, 42);
-            var all31 = construct(rules, 31);
-            long[][] all;
-            //all = new[] { new[] { 11L } };
-            all = Combine(all42, all31);
-            all = Combine(all42, all);
-
-            var li = la.Split(Environment.NewLine);
-
-            var c8 = all.Where((m, idx) => m.Skip(1).Contains(8)).ToArray();
-            var c11 = all.Where((m, idx) => m.Where(o => o == 11).Count() > 1).ToArray();
-            var allstrings = all.Select(m =>
-               {
-                   return Match(m, rules);
-               }).ToArray();
-
-            var m = li.Where(l => allstrings.Contains(l));
-
-            var liminle = li.Select(l => l.Length).Min();
-            var limaxle = li.Select(l => l.Length).Max();
-            var limi = li.Where(l => l.Length == liminle).Count();
-            var linonmi = li.Where(l => l.Length > liminle).Count();
-            ret = m.Count();
-
-            Console.WriteLine(ret);
-            return ret;
+        private static string[] ExtractStrings(Dictionary<long, Rule> rules, long[][] all)
+        {
+            return all.Select(m =>
+            {
+                return Match(m, rules);
+            }).ToArray();
         }
 
         private static bool IsEndingRule(Dictionary<long, Rule> rules, long o)
@@ -86,7 +97,7 @@ namespace day_19
             return string.Join("", chars);
         }
 
-        private static long[][] construct(Dictionary<long, Rule> rules, long pos)
+        private static long[][] Construct(Dictionary<long, Rule> rules, long pos)
         {
             var r = rules[pos];
 
@@ -100,7 +111,7 @@ namespace day_19
 
                 foreach (var ruin in ru)
                 {
-                    var li = construct(rules, ruin);
+                    var li = Construct(rules, ruin);
 
                     s = Combine(s, li);
                 }
