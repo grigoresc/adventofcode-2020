@@ -14,44 +14,27 @@ namespace day_19
         static void Main(string[] args)
         {
             Solve();
-            var e = buildreg("ceva", "bun", 2);
-            Regex r = new Regex(e);
-            var m1 = r.Match("cevabun");
-            m1 = r.Match("cevacevabun");
-            m1 = r.Match("cevacevabun");
-            m1 = r.Match("cevacevacevabun");
         }
 
         public static void Solve()
         {
-            solve1(File.ReadAllText("day-19.input.txt"));
+            Assert.Equal(12, Solve2(File.ReadAllText("day-19.sample2.p2.txt")));
+            Assert.Equal(414, Solve2(File.ReadAllText("day-19.input.txt")));
             //solve1(File.ReadAllText("day-19.sample2.p2.txt"));
         }
 
-        static string buildreg(string s42, string s31, int reps)
+        private static long Solve2(string input)
         {
-            return $"^({s42}){{1,}}({s42}){{{reps}}}({s31}){{{reps}}}$";
-        }
-        private static long solve1(string input)
-        {
-            long ret;
             Dictionary<long, Rule> rules;
-            string[] li;
-            Parse(input, out rules, out li);
-            ret = 0L;
-
-            var liminle = li.Select(l => l.Length).Min();
-            var limaxle = li.Select(l => l.Length).Max();
-            var limi = li.Where(l => l.Length == liminle).Count();
-            var linonmi = li.Where(l => l.Length > liminle).Count();
-
+            string[] lines;
+            Parse(input, out rules, out lines);
 
             var all42_reg = ConstructRegex(rules, 42);
             var all31_reg = ConstructRegex(rules, 31);
 
-            //12 chunks max; reg has 1+2 min;
             var allstrings_reg_a = new List<string>();
 
+            //12 max 12 chunks; reg has 1+2 min; so we may have either 10*1+2 or 1+2*5
             for (var rleft = 1; rleft <= 10; rleft++)
             {
                 for (var rright = 1; rright <= 5; rright++)
@@ -61,10 +44,11 @@ namespace day_19
                 }
             }
             var sln = new List<int>();
+            long ret = 0L;
             foreach (var o in allstrings_reg_a)
             {
                 var r = new Regex(o);
-                var f = li
+                var f = lines
                             .Select((o, idx) => (o, idx))
                             .Where((s, idx) => !sln.Contains(idx) && r.IsMatch(s.o))
                             .Select(o => o.idx).ToList();
@@ -104,25 +88,6 @@ namespace day_19
             li = la.Split(Environment.NewLine);
         }
 
-        private static string[] ExtractStrings(Dictionary<long, Rule> rules, long[][] all)
-        {
-            return all.Select(m =>
-            {
-                return Match(m, rules);
-            }).ToArray();
-        }
-
-        private static bool IsEndingRule(Dictionary<long, Rule> rules, long o)
-        {
-            return (rules[o].pos == 110 || rules[o].pos == 39);
-        }
-
-        private static string Match(long[] m, Dictionary<long, Rule> rules)
-        {
-            var chars = m.Where(m => IsEndingRule(rules, m)).Select(r => rules[r].cha.GetValueOrDefault().ToString()).ToArray();
-            return string.Join("", chars);
-        }
-
         private static string ConstructRegex(Dictionary<long, Rule> rules, long pos)
         {
             var r = rules[pos];
@@ -146,44 +111,6 @@ namespace day_19
             }
             return "(" + string.Join("|", ret) + ")";
         }
-
-        private static long[][] Construct(Dictionary<long, Rule> rules, long pos)
-        {
-            var r = rules[pos];
-
-            if (r.cha.HasValue)
-                return new[] { new[] { pos } };
-
-            var ret = new List<long[]>();
-            foreach (var ru in r.rules)
-            {
-                long[][] s = new[] { new[] { pos } };
-
-                foreach (var ruin in ru)
-                {
-                    var li = Construct(rules, ruin);
-
-                    s = Combine(s, li);
-                }
-                ret.AddRange(s);
-            }
-            return ret.ToArray();
-        }
-
-        private static long[][] Combine(long[][] s, long[][] li)
-        {
-            s = (from first in s
-                 from second in li
-                 select first.Concat(second).ToArray()).ToArray();
-            return s;
-        }
-        private static string[] CombineAndRegex(string[] s, string[] li, Func<string, string, string> applyRegex)
-        {
-            s = (from first in s
-                 from second in li
-                 select applyRegex(first, second)).ToArray();
-            return s;
-        }
     }
 
     internal struct Rule
@@ -199,34 +126,5 @@ namespace day_19
             this.cha = cha;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Rule other &&
-                   pos == other.pos &&
-                   EqualityComparer<long[][]>.Default.Equals(rules, other.rules) &&
-                   cha == other.cha;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(pos, rules, cha);
-        }
-
-        public void Deconstruct(out long pos, out long[][] rules, out char? cha)
-        {
-            pos = this.pos;
-            rules = this.rules;
-            cha = this.cha;
-        }
-
-        public static implicit operator (long pos, long[][] rules, char? cha)(Rule value)
-        {
-            return (value.pos, value.rules, value.cha);
-        }
-
-        public static implicit operator Rule((long pos, long[][] rules, char? cha) value)
-        {
-            return new Rule(value.pos, value.rules, value.cha);
-        }
     }
 }
