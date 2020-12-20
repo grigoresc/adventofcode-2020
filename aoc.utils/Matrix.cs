@@ -6,20 +6,24 @@ namespace aoc.utils
 {
     public static class Matrix
     {
-        public static void ShowMatrix(this char[][] img, int lmax, int cmax)
+        //todo - need to redo this method, or extract the line writing from it
+        public static void ShowMatrix(this char[][] img, int lmax, int cmax, int? onlyline = null, string title = "")
         {
+            if (title != "") System.Console.WriteLine(title);
             for (int l = 0; l < lmax; l++)
-            {
-                for (int c = 0; c < cmax; c++)
+                if (onlyline == null || onlyline.Value == l)
                 {
-                    System.Console.Write(img[l][c]);
+                    for (int c = 0; c < cmax; c++)
+                    {
+                        System.Console.Write(img[l][c]);
+                    }
+                    if (onlyline == null)
+                        Console.WriteLine();
                 }
-                Console.WriteLine();
-            }
         }
-        public static void ShowMatrix(this char[][] img)
+        public static void ShowMatrix(this char[][] img, int? onlyline = null, string title = "")
         {
-            img.ShowMatrix(img.Length, img[0].Length);
+            img.ShowMatrix(img.Length, img[0].Length, onlyline, title);
         }
 
 
