@@ -23,12 +23,73 @@ namespace day_20
 
         public class Pic
         {
-            public char[][] M;
-            public string[] Edges;
-            public int Number;
+            public char[][] M { get; private set; }
+            public string[] Edges { get; private set; }
+            public int Number { get; private set; }
+
+            public Pic(int number, char[][] ma)
+            {
+                Number = number;
+                M = ma;
+                var n = String.Join("", ma[0]);
+                var s = String.Join("", ma[ma.Length - 1]);
+                var w = String.Join("", ma.Select(line => line[0]));
+                var e = String.Join("", ma.Select(line => line[line.Length - 1]));
+                // System.Console.WriteLine();
+                // System.Console.WriteLine(n);
+                // System.Console.WriteLine(e);
+                // System.Console.WriteLine(s);
+                // System.Console.WriteLine(w);
+                Edges = new[] { n, w, s, e };
+            }
+
             public string Reverse(int edge)
             {
                 return String.Join("", Edges[edge].Reverse());
+            }
+
+            public Pic Rotate()
+            {
+                var N = this.M.Length;
+                char[][] newM = new char[N][];
+                for (int i = 0; i < N; i++)
+                    newM[i] = new char[N];//it works in this situatio, since it's a square..
+                for (int i = 0; i < N; i++)
+                    for (int j = 0; j < N; j++)
+                        newM[j][N - i - 1] = M[i][j];
+
+                var ret = new Pic(this.Number, newM);
+                return ret;
+            }
+
+            public Pic Flip()
+            {
+                var N = this.M.Length;
+                //todo rotate here!
+                char[][] newM = new char[N][];
+                for (int i = 0; i < N; i++)
+                    newM[i] = new char[N];//it works in this situatio, since it's a square..
+                for (int i = 0; i < N; i++)
+                    for (int j = 0; j < N; j++)
+                        newM[j][i] = M[i][j];
+
+                var ret = new Pic(this.Number, newM);
+                return ret;
+            }
+
+            public Pic Copy()
+            {
+                var N = this.M.Length;
+                //todo rotate here!
+                char[][] newM = new char[N][];
+                for (int i = 0; i < N; i++)
+                    newM[i] = new char[N];//it works in this situatio, since it's a square..
+                for (int i = 0; i < N; i++)
+                    for (int j = 0; j < N; j++)
+                        newM[i][j] = M[i][j];
+
+                var ret = new Pic(this.Number, newM);
+                return ret;
             }
         }
 
@@ -65,6 +126,59 @@ namespace day_20
             return ret;
         }
 
+        static Pic Match(Pic pic, Pic mpic)
+        {
+            for (int r = 0; r < 4; r++)
+            {
+                var f = TranformToMatchEdge(pic, mpic, r, out var comparingEdge);
+                if (f != null)
+                    return f;
+            }
+            return null;
+        }
+
+        private static Pic TranformToMatchEdge(Pic pic, Pic mpic, int r, out int comparingEdge)
+        {
+            var match = false;
+            var current = mpic.Copy();
+
+            if (r == 0)
+                comparingEdge = 2;
+            else if (r == 1)
+                comparingEdge = 3;
+            else if (r == 2)
+                comparingEdge = 2;
+            else if (r == 3)
+                comparingEdge = 1;
+            else
+                throw new Exception("should not be here!");
+
+            for (int rotation = 0; rotation < 4; rotation++)
+            {
+                var reverse = current.Flip();
+
+                if (pic.Edges[r] == current.Edges[comparingEdge])
+                {
+                    // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}");
+                    if (match)
+                        throw new Exception("already match!");
+                    return current;
+                    // Pic found = new Pic{Number=mpic.Numbe,r}
+                }
+                else if (pic.Edges[r] == reverse.Edges[comparingEdge])
+                {
+                    if (match)
+                        throw new Exception("already match!");
+
+                    return current;
+                    // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}/R");
+                }
+
+                current = current.Rotate();
+            }
+            return null;
+        }
+
         static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod, out Dictionary<int, Pic> inner, Piece[,] puzzle, int iteration)
         {
             System.Console.WriteLine("possible matches");
@@ -80,25 +194,7 @@ namespace day_20
                 foreach (var (mn, mpic) in pics)
                     if (pic.Number != mpic.Number)
                     {
-                        var match = false;
-                        for (int r = 0; r < 4; r++)
-                            for (int mr = 0; mr < 4; mr++)
-                                if (pic.Edges[r] == mpic.Edges[mr])
-                                {
-                                    // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}");
-                                    if (match)
-                                        throw new Exception("already match!");
-                                    match = true;
-                                }
-                                else if (pic.Edges[r] == mpic.Reverse(mr))
-                                {
-                                    if (match)
-                                        throw new Exception("already match!");
-
-                                    match = true;
-                                    // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}/R");
-                                }
-                        if (match)
+                        if (Match(pic, mpic) != null)
                             cnt++;
                     }
                 if (cnt == 2)
@@ -117,9 +213,20 @@ namespace day_20
                     inner.Add(pic.Number, pic);
                 }
                 else
-                    throw new Exception("should reach here!");
+                    throw new Exception("shouldnt reach here!");
             }
             // System.Console.WriteLine($"{corners.Count()}:{edges.Count()}:{inner.Count()}");
+
+            //fill the puzzle
+            // if (iteration == 0)
+            // {
+            //     //top,left corner
+            //     puzzle[iteration, iteration].Number = corners.ElementAt(0).Key;
+            //     //top edges
+            //     for ()
+
+            // }
+
         }
 
         private static void Read(string[] inputs, Dictionary<int, Pic> pics)
@@ -131,16 +238,7 @@ namespace day_20
                 var ma = readmatrix(la.ToArray());
                 System.Console.WriteLine(picno);
                 ma.ShowMatrix();
-                var n = String.Join("", ma[0]);
-                var s = String.Join("", ma[ma.Length - 1]);
-                var w = String.Join("", ma.Select(line => line[0]));
-                var e = String.Join("", ma.Select(line => line[line.Length - 1]));
-                System.Console.WriteLine();
-                System.Console.WriteLine(n);
-                System.Console.WriteLine(e);
-                System.Console.WriteLine(s);
-                System.Console.WriteLine(w);
-                pics.Add(picno, new Pic { Number = picno, M = ma, Edges = new[] { n, w, s, e } });
+                pics.Add(picno, new Pic(picno, ma));
             }
         }
 
