@@ -5,12 +5,12 @@ using aoc.utils;
 using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace day_20
 {
     public class Program
     {
-
         static void Main(string[] args)
         {
             Solve();
@@ -50,12 +50,23 @@ namespace day_20
             var newPic = new Pic(-1, newM);
 
             System.Console.WriteLine("\nreduced image");
-            newPic.M.ShowMatrix();
+            // newPic.M.ShowMatrix();
 
             newPic = FillPattern(newPic);
+            newPic.M.ShowMatrix(title: "with monsters", applyColor: (c) =>
+             {
+                 //  Thread.Sleep(2);
+                 if (c == 'o')
+                 {
+                     return (ConsoleColor.Yellow, ConsoleColor.DarkYellow);
+                 }
+                 else
+                 {
+                     return (ConsoleColor.DarkBlue, ConsoleColor.Cyan);
+                 }
+             });
 
             retProblem2 = newPic.M.Sum(line => line.Where(c => c == '#').Count());
-
 
             Console.WriteLine($"{retProblem1} {retProblem2}");
             return new Tuple<long, long>(retProblem1, retProblem2);
@@ -85,7 +96,7 @@ namespace day_20
 
         private static IEnumerable<KeyValuePair<int, int>> PatternPositions(char[][] m, char[][] pattern)
         {
-            pattern.ShowMatrix();
+            // pattern.ShowMatrix();
             for (var i = 0; i < m.Length - pattern.Length; i++)
                 for (var j = 0; j < m[0].Length - pattern[0].Length; j++)
                 {
@@ -109,7 +120,7 @@ namespace day_20
         private static Pic FillPattern(Pic pic)
         {
             var pattern = GetPattern();
-            pattern.ShowMatrix(title: "pattern");
+            // pattern.ShowMatrix(title: "pattern");
 
             var current = pic.Copy();
             Pic f = null;
@@ -146,7 +157,7 @@ namespace day_20
                 }
             }
 
-            f.M.ShowMatrix(title: "with patterns");
+            // f.M.ShowMatrix(title: "with patterns");
             return f;
         }
 
@@ -160,7 +171,7 @@ namespace day_20
                     var l = "";
                     for (int j = 0; j < puzzle.GetLength(1); j++)
                     {
-                        puzzle[i, j]?.M.ShowMatrix(line);
+                        // puzzle[i, j]?.M.ShowMatrix(line);
                         var p = puzzle[i, j].M;
 
                         for (var c = 1; c < puzzle[0, 0].M.Length - 1; c++)
@@ -460,7 +471,7 @@ namespace day_20
             foreach (var p in items)
             {
                 System.Console.WriteLine(p.Value.Number);
-                p.Value.M.ShowMatrix();
+                // p.Value.M.ShowMatrix();
             }
             System.Console.WriteLine("");
         }
@@ -483,7 +494,7 @@ namespace day_20
                     Console.Write(" | ");
                     for (int j = 0; j < puzzle.GetLength(1); j++)
                     {
-                        puzzle[i, j]?.M.ShowMatrix(line);
+                        // puzzle[i, j]?.M.ShowMatrix(line);
                         Console.Write(" | ");
                     }
                     System.Console.WriteLine("");
