@@ -18,7 +18,7 @@ namespace day_20
 
         public static void Solve()
         {
-            Solve1(File.ReadAllText("day-20.input.txt"));
+            Solve2(File.ReadAllText("day-20.input.txt"));
         }
 
         public class Pic
@@ -40,7 +40,7 @@ namespace day_20
         }
 
 
-        private static long Solve1(string input)
+        private static long Solve2(string input)
         {
             long ret = 0L;
 
@@ -50,16 +50,29 @@ namespace day_20
 
             Read(inputs, pics);
 
-            FindPossibleMatches(pics, out ret);
+            var len = (int)Math.Sqrt(pics.Count());
+            System.Console.WriteLine(len);
+
+            Piece[,] puzzle = new Piece[len, len];
+            Dictionary<int, Pic> inner;
+            var cnt = 0;
+            FindPossibleMatches(pics, out ret, out inner, puzzle, cnt++);
+            System.Console.WriteLine("sln1=" + ret);
+            while (inner.Count() > 1)
+                FindPossibleMatches(inner, out ret, out inner, puzzle, cnt++);
 
             Console.WriteLine(ret);
             return ret;
         }
 
-        static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod)
+        static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod, out Dictionary<int, Pic> inner, Piece[,] puzzle, int iteration)
         {
             System.Console.WriteLine("possible matches");
             prod = 1;
+            var corners = new Dictionary<int, Pic>();
+            var edges = new Dictionary<int, Pic>();
+            inner = new Dictionary<int, Pic>();
+
             foreach (var (n, pic) in pics)
             {
                 // System.Console.WriteLine($"pic={pic.Number}");
@@ -73,10 +86,14 @@ namespace day_20
                                 if (pic.Edges[r] == mpic.Edges[mr])
                                 {
                                     // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}");
+                                    if (match)
+                                        throw new Exception("already match!");
                                     match = true;
                                 }
                                 else if (pic.Edges[r] == mpic.Reverse(mr))
                                 {
+                                    if (match)
+                                        throw new Exception("already match!");
 
                                     match = true;
                                     // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}/R");
@@ -86,11 +103,23 @@ namespace day_20
                     }
                 if (cnt == 2)
                 {
-
+                    corners.Add(pic.Number, pic);
                     prod *= pic.Number;
-                    System.Console.WriteLine($"{pic.Number}");
+                    // System.Console.WriteLine($"{pic.Number}");
                 }
+                else if (cnt == 3)
+                {
+                    edges.Add(pic.Number, pic);
+
+                }
+                else if (cnt == 4)
+                {
+                    inner.Add(pic.Number, pic);
+                }
+                else
+                    throw new Exception("should reach here!");
             }
+            // System.Console.WriteLine($"{corners.Count()}:{edges.Count()}:{inner.Count()}");
         }
 
         private static void Read(string[] inputs, Dictionary<int, Pic> pics)
