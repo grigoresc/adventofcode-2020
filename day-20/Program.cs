@@ -32,15 +32,15 @@ namespace day_20
                 Number = number;
                 M = ma;
                 var n = String.Join("", ma[0]);
+                var e = String.Join("", ma.Select(line => line[line.Length - 1]));
                 var s = String.Join("", ma[ma.Length - 1]);
                 var w = String.Join("", ma.Select(line => line[0]));
-                var e = String.Join("", ma.Select(line => line[line.Length - 1]));
                 // System.Console.WriteLine();
                 // System.Console.WriteLine(n);
                 // System.Console.WriteLine(e);
                 // System.Console.WriteLine(s);
                 // System.Console.WriteLine(w);
-                Edges = new[] { n, w, s, e };
+                Edges = new[] { n, e, s, w };
             }
 
             public string Reverse(int edge)
@@ -96,8 +96,8 @@ namespace day_20
         public struct Piece
         {
             public int Number;
-            public bool Flipped;
-            public int Rotated;//0,1,2,3
+            // public bool Flipped;
+            // public int Rotated;//0,1,2,3
         }
 
 
@@ -114,7 +114,7 @@ namespace day_20
             var len = (int)Math.Sqrt(pics.Count());
             System.Console.WriteLine(len);
 
-            Piece[,] puzzle = new Piece[len, len];
+            Pic[,] puzzle = new Pic[len, len];
             Dictionary<int, Pic> inner;
             var cnt = 0;
             FindPossibleMatches(pics, out ret, out inner, puzzle, cnt++);
@@ -122,6 +122,7 @@ namespace day_20
             while (inner.Count() > 1)
                 FindPossibleMatches(inner, out ret, out inner, puzzle, cnt++);
 
+            Show(puzzle);
             Console.WriteLine(ret);
             return ret;
         }
@@ -137,18 +138,39 @@ namespace day_20
             return null;
         }
 
-        private static Pic TranformToMatchEdge(Pic pic, Pic mpic, int r, out int comparingEdge)
+        static Pic TransformSrcToMatch(int edge, Pic src, Pic mpic, int edge2, Pic mpic2)
+        {
+            var current = src.Copy();
+
+            for (int r = 0; r < 4; r++)
+            {
+                if (TranformToMatchEdge(current, mpic, edge, out var comparingEdge) != null)
+                    if (TranformToMatchEdge(current, mpic2, edge2, out var comparingEdge3) != null)
+                        return current;
+
+                var reverse = current.Flip();
+
+                if (TranformToMatchEdge(reverse, mpic, edge, out var comparingEdge2) != null)
+                    if (TranformToMatchEdge(reverse, mpic2, edge2, out var comparingedge3) != null)
+                        return reverse;
+
+                current = current.Rotate();
+            }
+            return null;
+        }
+
+        private static Pic TranformToMatchEdge(Pic pic, Pic mpic, int edge, out int comparingEdge)
         {
             var match = false;
             var current = mpic.Copy();
 
-            if (r == 0)
+            if (edge == 0)
                 comparingEdge = 2;
-            else if (r == 1)
+            else if (edge == 1)
                 comparingEdge = 3;
-            else if (r == 2)
-                comparingEdge = 2;
-            else if (r == 3)
+            else if (edge == 2)
+                comparingEdge = 0;
+            else if (edge == 3)
                 comparingEdge = 1;
             else
                 throw new Exception("should not be here!");
@@ -157,7 +179,7 @@ namespace day_20
             {
                 var reverse = current.Flip();
 
-                if (pic.Edges[r] == current.Edges[comparingEdge])
+                if (pic.Edges[edge] == current.Edges[comparingEdge])
                 {
                     // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}");
                     if (match)
@@ -165,12 +187,12 @@ namespace day_20
                     return current;
                     // Pic found = new Pic{Number=mpic.Numbe,r}
                 }
-                else if (pic.Edges[r] == reverse.Edges[comparingEdge])
+                else if (pic.Edges[edge] == reverse.Edges[comparingEdge])
                 {
                     if (match)
                         throw new Exception("already match!");
 
-                    return current;
+                    return reverse;
                     // System.Console.WriteLine($"match with {mpic.Number} on {r} and {mr}/R");
                 }
 
@@ -179,23 +201,29 @@ namespace day_20
             return null;
         }
 
-        static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod, out Dictionary<int, Pic> inner, Piece[,] puzzle, int iteration)
+        static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod, out Dictionary<int, Pic> inner, Pic[,] puzzle, int iteration)
         {
-            System.Console.WriteLine("possible matches");
+            System.Console.WriteLine($"possible matches iteration {iteration}");
             prod = 1;
             var corners = new Dictionary<int, Pic>();
             var edges = new Dictionary<int, Pic>();
             inner = new Dictionary<int, Pic>();
+            var links = new Dictionary<int, List<int>>();
 
             foreach (var (n, pic) in pics)
             {
+                links[pic.Number] = new List<int>();
                 // System.Console.WriteLine($"pic={pic.Number}");
                 var cnt = 0;
                 foreach (var (mn, mpic) in pics)
                     if (pic.Number != mpic.Number)
                     {
-                        if (Match(pic, mpic) != null)
+                        var ma = Match(pic, mpic);
+                        if (ma != null)
+                        {
+                            links[pic.Number].Add(ma.Number);
                             cnt++;
+                        }
                     }
                 if (cnt == 2)
                 {
@@ -205,6 +233,7 @@ namespace day_20
                 }
                 else if (cnt == 3)
                 {
+                    // System.Console.WriteLine("EDGE FOUND" + pic.Number);
                     edges.Add(pic.Number, pic);
 
                 }
@@ -215,29 +244,288 @@ namespace day_20
                 else
                     throw new Exception("shouldnt reach here!");
             }
-            // System.Console.WriteLine($"{corners.Count()}:{edges.Count()}:{inner.Count()}");
+            System.Console.WriteLine($"c/e/i={corners.Count()}:{edges.Count()}:{inner.Count()}");
 
             //fill the puzzle
             // if (iteration == 0)
             // {
-            //     //top,left corner
-            //     puzzle[iteration, iteration].Number = corners.ElementAt(0).Key;
-            //     //top edges
-            //     for ()
 
+            //top,left corner
+            // if (iteration == 0)
+            // {
+            //     System.Console.WriteLine($"will take for corner {corners.ElementAt(0).Key}");
+            //     corners.ElementAt(0).Value.M.ShowMatrix();
+            //     puzzle[iteration, iteration] = corners.ElementAt(0).Value;
             // }
+            // else
+            // {
+            //     var upper = puzzle[iteration - 1, iteration];
 
+
+            var N = puzzle.GetLength(0);
+            var BEGIN = iteration;
+            var END = N - iteration;
+            System.Console.WriteLine($"N={N} BEGIN={BEGIN} END={END}");
+
+            var usedCorners = new List<int>();
+            var usedEdges = new List<int>();
+
+            //top left corner
+            // Show(corners, "corner");
+            foreach (var (nctl, cTL) in corners)
+                if (!usedCorners.Contains(cTL.Number))
+                {
+                    if (iteration > 0)
+                    {
+                        var f = TranformToMatchEdge(puzzle[BEGIN - 1, BEGIN], cTL, 2, out var cedge);
+                        if (f != null)
+                        {
+                            puzzle[BEGIN, BEGIN] = f;
+                            // break;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var (nel, eLeft) in edges)
+                        {
+                            foreach (var (ned, eDown) in edges)
+                            {
+                                var f = TransformSrcToMatch(1, cTL, eLeft, 2, eDown);
+                                if (f != null)
+                                {
+                                    puzzle[BEGIN, BEGIN] = f;
+                                    // System.Console.WriteLine("c=" + f.Number);
+                                    break;
+                                }
+                            }
+
+                        }
+                    }
+
+                    if (puzzle[BEGIN, BEGIN] != null)
+                    {
+                        usedCorners.Add(cTL.Number);
+                        break;
+                    }
+                    // Show(puzzle);
+                    // System.Console.WriteLine(puzzle[BEGIN, BEGIN].Number);
+
+                    // corners.Remove(puzzle[iteration, iteration].Number);
+
+                }
+
+            //top edges
+            System.Console.WriteLine("top edges");
+            for (var column = BEGIN + 1; column < END - 1; column++)
+            {
+                System.Console.WriteLine($"top edges column={column}");
+                // var found = false;
+                foreach (var (ne, edge) in edges)
+                    if (!usedEdges.Contains(edge.Number))
+                    {
+
+                        var f = TranformToMatchEdge(puzzle[BEGIN, column - 1], edge, 1, out var cedge);
+                        if (f != null)
+                        {
+                            puzzle[BEGIN, column] = f;
+                            usedEdges.Add(edge.Number);
+                            // found = true;
+                            break;
+                        }
+                    }
+                // if (found)
+                // break;
+            }
+
+            // Show(puzzle);
+            System.Console.WriteLine("corner top right");
+            //corner top right 
+            foreach (var (nctr, cTR) in corners)
+
+                if (!usedCorners.Contains(cTR.Number))
+                {
+                    var f = TranformToMatchEdge(puzzle[BEGIN, END - 1 - 1], cTR, 1, out var cedge);
+                    if (f != null)
+                    {
+                        puzzle[BEGIN, END - 1] = f;
+                        usedCorners.Add(cTR.Number);
+                        break;
+                    }
+                }
+
+            // Show(corners);
+
+            // Show(puzzle);
+            //right edges
+            System.Console.WriteLine("right edges");
+            for (var row = BEGIN + 1; row < END - 1; row++)
+            {
+                // var found = false;
+                foreach (var (ne, edge) in edges)
+                    if (!usedEdges.Contains(edge.Number))
+                    {
+                        var f = TranformToMatchEdge(puzzle[row - 1, END - 1], edge, 2, out var cedge);
+                        if (f != null)
+                        {
+                            puzzle[row, END - 1] = f;
+                            usedEdges.Add(edge.Number);
+                            // found = true;
+                            break;
+                        }
+                    }
+                // if (found)
+                // break;
+            }
+
+            // System.Console.WriteLine("try find bottom right");
+            // puzzle[END - 1 - 1, END - 1].M.ShowMatrix();
+            //corner bottom right
+            System.Console.WriteLine("corner bottom right");
+            foreach (var (ncbr, cBR) in corners)
+                if (!usedCorners.Contains(cBR.Number))
+                {
+                    var f = TranformToMatchEdge(puzzle[END - 1 - 1, END - 1], cBR, 2, out var cedge);
+                    if (f != null)
+                    {
+                        puzzle[END - 1, END - 1] = f;
+                        usedCorners.Add(cBR.Number);
+                        break;
+                    }
+                }
+
+            //left edges
+            System.Console.WriteLine("left edges");
+            for (var row = BEGIN + 1; row < END - 1; row++)
+            {
+                // var found = false;
+                foreach (var (ne, edge) in edges)
+                    if (!usedEdges.Contains(edge.Number))
+                    {
+                        var f = TranformToMatchEdge(puzzle[row - 1, BEGIN], edge, 2, out var cedge);
+                        if (f != null)
+                        {
+                            puzzle[row, BEGIN] = f;
+                            usedEdges.Add(edge.Number);
+                            // found = true;
+                            break;
+                        }
+                    }
+                // if (found)
+                // break;
+            }
+
+            //corner bottom left
+            foreach (var (ncbl, cBL) in corners)
+                if (!usedCorners.Contains(cBL.Number))
+                {
+                    var f = TranformToMatchEdge(puzzle[END - 1 - 1, BEGIN], cBL, 2, out var cedge);
+                    if (f != null)
+                    {
+                        puzzle[END - 1, BEGIN] = f;
+                        usedCorners.Add(cBL.Number);
+                        break;
+                    }
+                }
+
+            //bottom edge
+            for (var column = BEGIN + 1; column < END - 1; column++)
+            {
+                // var found = false;
+
+                foreach (var (ne, edge) in edges)
+                    if (!usedEdges.Contains(edge.Number))
+                    {
+                        // System.Console.WriteLine();
+                        // System.Console.WriteLine($"COMPARE {edge.Number}");
+                        // puzzle[END - 1, column - 1].M.ShowMatrix();
+                        // System.Console.WriteLine();
+                        // edge.M.ShowMatrix();
+
+                        var f = TranformToMatchEdge(puzzle[END - 1, column - 1], edge, 1, out var cedge);
+                        if (f != null)
+                        {
+                            puzzle[END - 1, column] = f;
+                            usedEdges.Add(edge.Number);
+                            // found = true;
+                            break;
+                        }
+                    }
+                // if (found)
+                // break;
+            }
         }
 
-        private static void Read(string[] inputs, Dictionary<int, Pic> pics)
+        private static void Show(Dictionary<int, Pic> items, string msg)
+        {
+            System.Console.WriteLine(msg);
+            foreach (var p in items)
+            {
+                System.Console.WriteLine(p.Value.Number);
+                p.Value.M.ShowMatrix();
+            }
+            System.Console.WriteLine("");
+        }
+
+        static void Show(Pic[,] puzzle)
+        {
+            System.Console.WriteLine("puzzle:");
+            for (int i = 0; i < puzzle.GetLength(0); i++)
+            {
+                Console.Write(" | ");
+                for (int j = 0; j < puzzle.GetLength(1); j++)
+                // foreach (var rows in puzzle)
+                // foreach (var columns in rows)
+                {
+                    Console.Write(puzzle[i, j]?.Number + " | ");
+                }
+                System.Console.WriteLine();
+
+                for (int line = 0; line < puzzle[0, 0].M.Length; line++)
+                {
+
+                    Console.Write(" | ");
+                    for (int j = 0; j < puzzle.GetLength(1); j++)
+                    // foreach (var rows in puzzle)
+                    // foreach (var columns in rows)
+                    {
+                        puzzle[i, j]?.M.ShowMatrix(line);
+                        Console.Write(" | ");
+
+                        // Console.Write(puzzle[i, j]?.Number + ":");
+                    }
+                    System.Console.WriteLine("");
+                }
+                System.Console.WriteLine("");
+
+            }
+            return;
+            for (int i = 0; i < puzzle.GetLength(0); i++)
+                for (int j = 0; j < puzzle.GetLength(1); j++)
+                // foreach (var rows in puzzle)
+                // foreach (var columns in rows)
+                {
+                    System.Console.WriteLine($"{i}:{j}");
+                    if (puzzle[i, j] != null)
+                    {
+                        System.Console.WriteLine(puzzle[i, j].Number);
+                        puzzle[i, j].M.ShowMatrix();
+                    }
+                    else
+                    {
+                        System.Console.WriteLine($"not present");
+                    }
+                    // columns
+                }
+        }
+        static void Read(string[] inputs, Dictionary<int, Pic> pics)
         {
             foreach (var m in inputs)
             {
                 (var fi, var la) = m.Split(Environment.NewLine);
                 var picno = int.Parse(fi.Replace("Tile ", "").Replace(":", ""));
                 var ma = readmatrix(la.ToArray());
-                System.Console.WriteLine(picno);
-                ma.ShowMatrix();
+                // System.Console.WriteLine(picno);
+                // ma.ShowMatrix();
                 pics.Add(picno, new Pic(picno, ma));
             }
         }
@@ -251,8 +539,18 @@ namespace day_20
                 for (int j = 0; j < input[i].Length; j++)
                     matrix[i][j] = input[i][j];
             }
-            matrix.ShowMatrix();
+            // matrix.ShowMatrix();
             return matrix;
         }
+    }
+}
+
+public static class Ex
+{
+    public static IEnumerable<IEnumerable<T>> DifferentCombinations<T>(this IEnumerable<T> elements, int k)
+    {
+        return k == 0 ? new[] { new T[0] } :
+          elements.SelectMany((e, i) =>
+            elements.Skip(i + 1).DifferentCombinations(k - 1).Select(c => (new[] { e }).Concat(c)));
     }
 }
