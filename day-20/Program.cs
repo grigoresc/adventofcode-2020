@@ -119,12 +119,153 @@ namespace day_20
             var cnt = 0;
             FindPossibleMatches(pics, out ret, out inner, puzzle, cnt++);
             System.Console.WriteLine("sln1=" + ret);
-            while (inner.Count() > 1)
+            while (inner.Count() > 0)
                 FindPossibleMatches(inner, out ret, out inner, puzzle, cnt++);
 
-            Show(puzzle);
+            var noBordersImage = CombineAndRemoveBorders(puzzle);
+            // Show(puzzle);
+
+            var newM = readmatrix(noBordersImage.ToArray());
+            var newPic = new Pic(-1, newM);
+
+            System.Console.WriteLine("\nreduced image");
+            newPic.M.ShowMatrix();
+
+            newPic = FillPattern(newPic);
+
+            ret = newPic.M.Sum(line => line.Where(c => c == '#').Count());
+
+
+            // System.Console.WriteLine("\nimage with patterns");
+            // newPic.M.ShowMatrix();
             Console.WriteLine(ret);
             return ret;
+        }
+
+        private static char[][] GetPattern()
+        {
+            var p =
+                "                  # " + Environment.NewLine +
+                "#    ##    ##    ###" + Environment.NewLine +
+                " #  #  #  #  #  #   ";// + Environment.NewLine;
+            var pm = readmatrix(p.Split(Environment.NewLine));
+            return pm;
+        }
+
+        private static void ApplyPattern(char[][] m, char[][] pattern, int i, int j)
+        {
+            for (var pi = 0; pi < pattern.Length; pi++)
+                for (var pj = 0; pj < pattern[0].Length; pj++)
+                {
+                    var p = pattern[pi][pj];
+                    var el = m[i + pi][j + pj];
+                    if (p == '#')
+                        m[i + pi][j + pj] = 'o';
+                }
+        }
+
+        private static IEnumerable<KeyValuePair<int, int>> PatternPositions(char[][] m, char[][] pattern)
+        {
+            pattern.ShowMatrix();
+            for (var i = 0; i < m.Length - pattern.Length; i++)
+                for (var j = 0; j < m[0].Length - pattern[0].Length; j++)
+                {
+                    var ispattern = true;
+                    for (var pi = 0; pi < pattern.Length; pi++)
+                        for (var pj = 0; pj < pattern[0].Length; pj++)
+                        {
+                            var p = pattern[pi][pj];
+                            var el = m[i + pi][j + pj];
+                            if (p == '#')
+                            {
+                                if (el != '#')
+                                    ispattern = false;
+                            }
+                        }
+                    if (ispattern)
+                        yield return new KeyValuePair<int, int>(i, j);
+                }
+        }
+
+        private static Pic FillPattern(Pic pic)
+        {
+            var pattern = GetPattern();
+            pattern.ShowMatrix(title: "pattern");
+
+            var current = pic.Copy();
+            Pic f = null;
+            List<KeyValuePair<int, int>> places = null;
+
+            for (int reps = 0; reps < 4; reps++)
+            {
+                places = PatternPositions(current.M, pattern).ToList();
+
+                if (places.Count() == 0)
+                {
+                    var inverse = current.Flip();
+                    places = PatternPositions(inverse.M, pattern).ToList();
+                    if (places.Count() > 1)
+                    {
+                        f = inverse;
+                        break;
+                    }
+                }
+                else
+                {
+                    f = current;
+                    break;
+                }
+
+                current = current.Rotate();
+            }
+
+            if (f != null)
+            {
+                foreach (var place in places)
+                {
+                    ApplyPattern(f.M, pattern, place.Key, place.Value);
+                }
+            }
+
+            f.M.ShowMatrix(title: "with patterns");
+            return f;
+        }
+
+        private static List<String> CombineAndRemoveBorders(Pic[,] puzzle)
+        {
+            var lines = new List<String>();
+            for (int i = 0; i < puzzle.GetLength(0); i++)
+            {
+                // Console.Write(" | ");
+                for (int j = 0; j < puzzle.GetLength(1); j++)
+                {
+                    // Console.Write(puzzle[i, j]?.Number + " | ");
+                }
+                // System.Console.WriteLine();
+
+                for (int line = 1; line < puzzle[0, 0].M.Length - 1; line++)
+                {
+                    var l = "";
+                    // Console.Write(" | ");
+                    for (int j = 0; j < puzzle.GetLength(1); j++)
+                    {
+                        puzzle[i, j]?.M.ShowMatrix(line);
+                        var p = puzzle[i, j].M;
+
+                        for (var c = 1; c < puzzle[0, 0].M.Length - 1; c++)
+                            l += p[line][c];
+
+                        // Console.Write(" | ");
+
+                        // Console.Write(puzzle[i, j]?.Number + ":");
+                    }
+                    lines.Add(l);
+                    // System.Console.WriteLine("");
+                }
+                // System.Console.WriteLine("");
+
+            }
+            return lines;
         }
 
         static Pic Match(Pic pic, Pic mpic)
@@ -203,12 +344,33 @@ namespace day_20
 
         static void FindPossibleMatches(Dictionary<int, Pic> pics, out long prod, out Dictionary<int, Pic> inner, Pic[,] puzzle, int iteration)
         {
+
+            var N = puzzle.GetLength(0);
+            var BEGIN = iteration;
+            var END = N - iteration;
+            System.Console.WriteLine($"N={N} BEGIN={BEGIN} END={END}");
+
             System.Console.WriteLine($"possible matches iteration {iteration}");
             prod = 1;
             var corners = new Dictionary<int, Pic>();
             var edges = new Dictionary<int, Pic>();
             inner = new Dictionary<int, Pic>();
             var links = new Dictionary<int, List<int>>();
+
+            if (pics.Count() == 1)
+            {
+                var theonlyone = pics.ElementAt(0).Value;
+                var f = TranformToMatchEdge(puzzle[BEGIN - 1, BEGIN], theonlyone, 2, out var cedge);
+                if (f != null)
+                {
+                    puzzle[BEGIN, BEGIN] = f;
+                    // break;
+                }                //this happens only on the sample and not on the real input
+                else
+                    throw new Exception("shouldnt happen!");
+                // puzzle[BEGIN,END-1]=pics.
+                return;
+            }
 
             foreach (var (n, pic) in pics)
             {
@@ -262,10 +424,7 @@ namespace day_20
             //     var upper = puzzle[iteration - 1, iteration];
 
 
-            var N = puzzle.GetLength(0);
-            var BEGIN = iteration;
-            var END = N - iteration;
-            System.Console.WriteLine($"N={N} BEGIN={BEGIN} END={END}");
+
 
             var usedCorners = new List<int>();
             var usedEdges = new List<int>();
@@ -293,7 +452,7 @@ namespace day_20
                                 var f = TransformSrcToMatch(1, cTL, eLeft, 2, eDown);
                                 if (f != null)
                                 {
-                                    puzzle[BEGIN, BEGIN] = f;
+                                    puzzle[BEGIN, BEGIN] = f.Flip();
                                     // System.Console.WriteLine("c=" + f.Number);
                                     break;
                                 }
@@ -499,23 +658,6 @@ namespace day_20
 
             }
             return;
-            for (int i = 0; i < puzzle.GetLength(0); i++)
-                for (int j = 0; j < puzzle.GetLength(1); j++)
-                // foreach (var rows in puzzle)
-                // foreach (var columns in rows)
-                {
-                    System.Console.WriteLine($"{i}:{j}");
-                    if (puzzle[i, j] != null)
-                    {
-                        System.Console.WriteLine(puzzle[i, j].Number);
-                        puzzle[i, j].M.ShowMatrix();
-                    }
-                    else
-                    {
-                        System.Console.WriteLine($"not present");
-                    }
-                    // columns
-                }
         }
         static void Read(string[] inputs, Dictionary<int, Pic> pics)
         {
@@ -541,6 +683,46 @@ namespace day_20
             }
             // matrix.ShowMatrix();
             return matrix;
+        }
+    }
+
+    internal struct NewStruct
+    {
+        public int i;
+        public int j;
+
+        public NewStruct(int i, int j)
+        {
+            this.i = i;
+            this.j = j;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NewStruct other &&
+                   i == other.i &&
+                   j == other.j;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(i, j);
+        }
+
+        public void Deconstruct(out int i, out int j)
+        {
+            i = this.i;
+            j = this.j;
+        }
+
+        public static implicit operator (int i, int j)(NewStruct value)
+        {
+            return (value.i, value.j);
+        }
+
+        public static implicit operator NewStruct((int i, int j) value)
+        {
+            return new NewStruct(value.i, value.j);
         }
     }
 }

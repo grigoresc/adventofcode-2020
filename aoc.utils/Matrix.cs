@@ -7,8 +7,9 @@ namespace aoc.utils
     public static class Matrix
     {
         //todo - need to redo this method, or extract the line writing from it
-        public static void ShowMatrix(this char[][] img, int lmax, int cmax, int? onlyline = null)
+        public static void ShowMatrix(this char[][] img, int lmax, int cmax, int? onlyline = null, string title = "")
         {
+            if (title != "") System.Console.WriteLine(title);
             for (int l = 0; l < lmax; l++)
                 if (onlyline == null || onlyline.Value == l)
                 {
@@ -20,9 +21,9 @@ namespace aoc.utils
                         Console.WriteLine();
                 }
         }
-        public static void ShowMatrix(this char[][] img, int? onlyline = null)
+        public static void ShowMatrix(this char[][] img, int? onlyline = null, string title = "")
         {
-            img.ShowMatrix(img.Length, img[0].Length, onlyline);
+            img.ShowMatrix(img.Length, img[0].Length, onlyline, title);
         }
 
 
