@@ -13,11 +13,16 @@ namespace day_21
 
         static void Main(string[] args)
         {
-            Solve();
+            var reg = new Regex("a b c (contains z y z)");
+            var string = "a b c (contains z y z)";
+            var m = reg.Match(string);
+
+            // Solve(File.ReadAllLines("day-21.sample.txt"));
         }
 
-        public static void Solve()
+        public static void Solve(string [] lines)
         {
+
         }
 
     }
