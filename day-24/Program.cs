@@ -18,7 +18,7 @@ namespace day_24
 
         public static void Solve()
         {
-            solve1(File.ReadAllLines("day-24.input.txt"));
+            solve1(File.ReadAllLines("day-24.input.txt"));//382
         }
 
         class pos
@@ -27,6 +27,7 @@ namespace day_24
             public int ne;
             public int se;
         }
+
 
         static long solve1(string[] lines)
         {
@@ -72,13 +73,13 @@ namespace day_24
                     }
                     else
                     {
-                        Console.WriteLine("!!!!!");
+                        throw new Exception("shouldn be here");
                     }
                 }
 
-                Console.WriteLine($"{e}:{se}:{ne}->");
-                //normalize (ne or se should be 0) and (ne or se should be positive)
+                //Console.WriteLine($"{e}:{se}:{ne}->");
 
+                //normalize (ne or se should be 0) and (ne or se should be positive)
                 if (ne > 0 && se > 0)
                 {
                     ne -= se;
@@ -87,56 +88,15 @@ namespace day_24
                 }
                 while (!((ne == 0 || se == 0) && (ne > 0 || se > 0)))
                 {
-                    Console.WriteLine($"..{e}:{se}:{ne}");
+                    //Console.WriteLine($"..{e}:{se}:{ne}");
                     if (ne == 0 && se == 0)
                         break;
                     se++;
                     ne++;
                     e--;
                 }
-                //var m = Math.Min(Math.Abs(se), Math.Abs(ne));
 
-                //if (m == Math.Abs(se))
-                //{
-
-                //    for (int c = 0; c < m; c++)
-                //    {
-                //        if (se > 0)
-                //        {
-                //            se--;
-                //            ne--;
-                //            e++;
-                //        }
-                //        else
-                //        {
-                //            se++;
-                //            ne++;
-                //            e--;
-                //        }
-                //    }
-
-                //}
-                //else
-                //{
-                //    for (int c = 0; c < m; c++)
-                //    {
-                //        if (ne > 0)
-                //        {
-                //            se--;
-                //            ne--;
-                //            e++;
-                //        }
-                //        else
-                //        {
-                //            se++;
-                //            ne++;
-                //            e--;
-                //        }
-                //    }
-                //}
-                //normalize ne or se must be positive
-
-                Console.WriteLine($"       -->{e}:{se}:{ne}");
+                //Console.WriteLine($"       -->{e}:{se}:{ne}");
                 string key = getkey(e, se, ne);
                 if (!list.ContainsKey(key))
                 {
@@ -147,12 +107,12 @@ namespace day_24
                 {
                     list[key]++;
                 }
-                Console.WriteLine();
+                //Console.WriteLine();
 
             }
             foreach (var (k, v) in list)
             {
-                Console.WriteLine($"{k} is {v} times");
+                //Console.WriteLine($"{k} is {v} times");
             }
             ret = list.Where(o => o.Value % 2 == 1).Count();
             Console.WriteLine(ret);
